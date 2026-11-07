@@ -8,7 +8,7 @@
       <!-- 标题 -->
       <text if="{{isCircle}}" style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">便签</text>
       <!-- 便签卡片列表 -->
-      <scroll if="{{isCircle && !empty && !loading}}" scroll-y="true" bounces="false" onscroll="onCircleScroll" onscrollbottom="loadMoreNotes" style="position:absolute;left:0;top:110px;width:336px;height:226px;flex-direction:column;">
+      <scroll if="{{isCircle && !empty && !loading}}" scroll-y="true" bounces="false" onscrollbottom="loadMoreNotes" style="position:absolute;left:0;top:110px;width:336px;height:226px;flex-direction:column;">
         <div for="{{shownNotes}}" style="width:291px;min-height:77px;margin-left:22px;margin-bottom:10px;border-radius:24px;background-color:#262626;flex-direction:column;justify-content:center;padding-left:22px;padding-right:22px;" onclick="editNote($item.id)">
           <text style="font-size:22px;color:#FFFFFF;">{{$item.content}}</text>
         </div>
@@ -331,6 +331,16 @@ var that = this
               result[n].cloudId = c2.id
               found = true
               break
+            }
+          }
+          // 兜底 2：仅按内容认领（云端 created_ts = 上传时刻，与本地创建时刻常差数分钟，10s 容差命中不了时防重复）
+          if (!found && c2.content) {
+            for (var n2 = 0; n2 < result.length; n2++) {
+              if (!result[n2].cloudId && result[n2].content === c2.content) {
+                result[n2].cloudId = c2.id
+                found = true
+                break
+              }
             }
           }
         }
